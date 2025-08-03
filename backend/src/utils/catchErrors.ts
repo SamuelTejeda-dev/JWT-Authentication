@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 
-//questa funzione è un middleware che gestisce gli errori delle route asincrone, in modo da non dover gestire gli errori in ogni singola route
+//questa funzione è un middleware che gestisce gli errori delle route asincrone,
+//  in modo da non dover gestire gli errori in ogni singola route
 
 type AsyncController = (
   req: Request,

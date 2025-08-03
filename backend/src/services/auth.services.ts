@@ -30,6 +30,7 @@ import {
 } from "../utils/emailTemplates";
 import { APP_ORIGIN } from "../constants/env";
 import { hashValue } from "../utils/bcrypt";
+import { log } from "node:console";
 
 export type CreateAccountParams = {
   email: string;
@@ -59,7 +60,7 @@ export const createAccount = async (data: CreateAccountParams) => {
     expiresAt: oneYearFromNow(),
   });
   //send verification email
-  const url = `${APP_ORIGIN}/email/verifi/${verificationCode._id}`;
+  const url = `${APP_ORIGIN}/email/verify/${verificationCode._id}`;
 
   const { error } = await sendMail({
     to: user.email,
@@ -233,47 +234,52 @@ export const verifyEmail = async (code: string) => {
 
 export const sendPasswordResetEmail = async (email: string) => {
   //get the user by email
-  const user = await UserModel.findOne({ email });
-  appAssert(user, NOT_FOUND, "User not found!");
-  //check email rate limit
-  const fiveMinAgo = fiveMinutesAgo();
-  //count è il numero di codici di verifica creati negli ultimi 5 minuti
-  //CreatedAt
-  const count = await VerificationCodeModel.countDocuments({
-    userId: user._id,
-    type: VerificationCodeType.PasswordReset,
-    createdAt: { $gt: fiveMinAgo },
-  });
-  appAssert(
-    count <= 1,
-    TOO_MANY_REQUESTS,
-    "Too many requests!, please try again later!"
-  );
-  //create verification code
-  const expiresAt = oneHourFromNow();
-  const verificationCode = await VerificationCodeModel.create({
-    userId: user._id,
-    type: VerificationCodeType.PasswordReset,
-    expiresAt,
-  });
-  //send verification email
+  try {
+    const user = await UserModel.findOne({ email });
+    appAssert(user, NOT_FOUND, "User not found!");
+    //check email rate limit
+    const fiveMinAgo = fiveMinutesAgo();
+    //count è il numero di codici di verifica creati negli ultimi 5 minuti
+    //CreatedAt
+    const count = await VerificationCodeModel.countDocuments({
+      userId: user._id,
+      type: VerificationCodeType.PasswordReset,
+      createdAt: { $gt: fiveMinAgo },
+    });
+    appAssert(
+      count <= 1,
+      TOO_MANY_REQUESTS,
+      "Too many requests!, please try again later!"
+    );
+    //create verification code
+    const expiresAt = oneHourFromNow();
+    const verificationCode = await VerificationCodeModel.create({
+      userId: user._id,
+      type: VerificationCodeType.PasswordReset,
+      expiresAt,
+    });
+    //send verification email
 
-  //exp ci permette di dire al frontend che il codice è scaduto e di evitare di fare la richiesta al backend se il link è già scaduto
-  const url = `${APP_ORIGIN}/password/reset?code=${verificationCode._id}&exp=${expiresAt.getTime()}`;
-  const { data, error } = await sendMail({
-    to: user.email,
-    ...getPasswordResetTemplate(url),
-  });
-  appAssert(
-    data?.id,
-    INTERNAL_SERVER_ERROR,
-    `${error?.name} - ${error?.message}`
-  );
-  //return success
-  return {
-    url,
-    emailId: data.id,
-  };
+    //exp ci permette di dire al frontend che il codice è scaduto e di evitare di fare la richiesta al backend se il link è già scaduto
+    const url = `${APP_ORIGIN}/password/reset?code=${verificationCode._id}&exp=${expiresAt.getTime()}`;
+    const { data, error } = await sendMail({
+      to: user.email,
+      ...getPasswordResetTemplate(url),
+    });
+    appAssert(
+      data?.id,
+      INTERNAL_SERVER_ERROR,
+      `${error?.name} - ${error?.message}`
+    );
+    //return success
+    return {
+      url,
+      emailId: data.id,
+    };
+  } catch (error: any) {
+    console.log("SendPasswordResetError", error.message);
+    return {};
+  }
 };
 
 type ResetPasswordParams = {

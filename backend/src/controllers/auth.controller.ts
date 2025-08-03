@@ -27,6 +27,7 @@ import appAssert from "../utils/AppAssert";
 
 export const registerHandler = catchErrors(async (req, res) => {
   //Validazione richiesta
+
   const request = registerSchema.parse({
     ...req.body,
     userAgent: req.headers["user-agent"],

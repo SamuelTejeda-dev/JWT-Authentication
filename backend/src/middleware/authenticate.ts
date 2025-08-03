@@ -5,7 +5,7 @@ import AppErrorCode from "../constants/appErrorCode";
 import { verifyToken } from "../utils/jwt";
 import { RequestSessionId, RequestUserId } from "../../index";
 
-const authenticate: RequestHandler = (req, res, next) => {
+const authenticate: RequestHandler = (req, _, next) => {
   const accessToken = req.cookies.accessToken as string | undefined;
 
   appAssert(
@@ -16,7 +16,7 @@ const authenticate: RequestHandler = (req, res, next) => {
   );
 
   const { error, payload } = verifyToken(accessToken);
-  console.log(error);
+
   appAssert(
     payload,
     UNAUTHORIZED,

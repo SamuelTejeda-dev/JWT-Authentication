@@ -11,7 +11,7 @@ const handleZodError = (res: Response, error: z.ZodError) => {
     path: err.path.join("."),
     message: err.message,
   }));
-  return res.status(BAD_REQUEST).json({ message: error.message, error });
+  return res.status(BAD_REQUEST).json({ message: error.message, errors });
 };
 
 //handleAppError è una funzione prende in input una response e un errore e resituisce una risposta json con il messaggio di errore e lo stato 500
