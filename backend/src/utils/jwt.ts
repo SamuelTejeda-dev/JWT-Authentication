@@ -2,6 +2,7 @@ import jwt, { SignOptions, verify, VerifyOptions } from "jsonwebtoken";
 import { SessionDocument } from "../models/session.model";
 import { UserDocument } from "../models/user.model";
 import { JWT_REFRESH_SECRET, JWT_SECRET } from "../constants/env";
+import Audience from "../constants/Audience";
 
 //questo codice crea dei token jwt per l'autenticazione dell'utente, come input riceve un payload di tipo accessTokenPayload o RefreshTokenPayload
 // e delle opzioni di firma, come secret e expiresIn. Se non vengono passate le opzioni di firma, vengono usate quelle di default definite in accessTokenSignOptions
@@ -20,7 +21,7 @@ type SignOptionsAndSecret = SignOptions & {
 };
 
 const defaults: SignOptions = {
-  audience: ["user"],
+  audience: Audience.User,
 };
 
 export const accessTokenSignOptions: SignOptionsAndSecret = {
@@ -43,14 +44,16 @@ export const signToken = (
 
 export const verifyToken = <TPayload extends object = accessTokenPayload>(
   token: string,
-  options?: VerifyOptions & { secret: string }
+  options?: VerifyOptions & { secret?: string }
 ) => {
   const { secret = JWT_SECRET, ...verifyOpts } = options || {};
   try {
     const payload = jwt.verify(token, secret, {
       ...defaults,
+      // Corrected line: wrap Audience.User in an array
+      audience: [defaults.audience as string],
       ...verifyOpts,
-    }) as TPayload;
+    }) as unknown as TPayload;
     return { payload };
   } catch (error: any) {
     return { error: error.message };
