@@ -1,47 +1,58 @@
-name: Deploy to Railway
+name: Deploy Monorepo to Railway
 
 on:
   push:
-    branches: -main
+    branches: [main]
 
 jobs:
-  deploy:
+  deploy-backend:
+    name: Deploy Backend
     runs-on: ubuntu-latest
-
+    container: ghcr.io/railwayapp/cli:latest
+    env:
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      SVC_ID: ${{ secrets.RAILWAY_BACKEND_SVC_ID }}
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-
-      - name: 📦 Install frontend dependencies
-        run: |
-          cd frontend
-          npm install
-
-      - name: 🛠️ Build frontend
-        run: |
-          cd frontend
-          npm run build
-
-      - name: 📂 Copy frontend build to backend
-        run: |
-          rm -rf backend/public
-          mkdir -p backend/public
-          cp -r frontend/dist/* backend/public/
-
-      - name: 📦 Install backend dependencies
+      # Spostati nella directory backend
+      - name: Install dependencies
         run: |
           cd backend
           npm install
 
-      - name: Run tests (optional)
-        run: echo "Nessun test configurato"
+      - name: Build backend (se necessario)
+        run: |
+          cd backend
+          npm run build || echo "Nessuna build necessaria"
 
-      - name: Deploy to Railway
-        uses: railwayapp/cli-action@v1
-        with:
-          railwaytoken: ${{ secrets.RAILWAY_TOKEN }}
+      - name: Deploy backend to Railway
+        run: |
+          cd backend
+          railway up --service=${{ env.SVC_ID }}
+
+  deploy-frontend:
+    name: Deploy Frontend
+    runs-on: ubuntu-latest
+    container: ghcr.io/railwayapp/cli:latest
+    env:
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      SVC_ID: ${{ secrets.RAILWAY_FRONTEND_SVC_ID }}
+    steps:
+      - uses: actions/checkout@v3
+
+      # Spostati nella directory frontend
+      - name: Install dependencies
+        run: |
+          cd frontend
+          npm install
+
+      - name: Build frontend
+        run: |
+          cd frontend
+          npm run build
+
+      - name: Deploy frontend to Railway
+        run: |
+          cd frontend
+          railway up --service=${{ env.SVC_ID }
