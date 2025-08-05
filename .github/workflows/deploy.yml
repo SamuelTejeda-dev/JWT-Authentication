@@ -21,6 +21,20 @@ jobs:
           cd backend
           npm install
 
+      - name: Run backend tests (if available)
+        # This step checks if a 'test' script exists in package.json
+        # If it exists, 'npm test' is executed.
+        # If not, a message is printed indicating no test script was found.
+        run: |
+          cd backend
+          if jq -e '.scripts.test' package.json > /dev/null; then
+            echo "Running backend tests..."
+            npm test
+          else
+            echo "No 'test' script found in backend/package.json. Skipping tests."
+          fi
+        shell: bash # Ensure bash is used for conditional logic
+
       - name: Build backend (se necessario)
         run: |
           cd backend
@@ -47,6 +61,20 @@ jobs:
           cd frontend
           npm install
 
+      - name: Run frontend tests (if available)
+        # This step checks if a 'test' script exists in package.json
+        # If it exists, 'npm test' is executed.
+        # If not, a message is printed indicating no test script was found.
+        run: |
+          cd frontend
+          if jq -e '.scripts.test' package.json > /dev/null; then
+            echo "Running frontend tests..."
+            npm test
+          else
+            echo "No 'test' script found in frontend/package.json. Skipping tests."
+          fi
+        shell: bash # Ensure bash is used for conditional logic
+
       - name: Build frontend
         run: |
           cd frontend
@@ -55,4 +83,4 @@ jobs:
       - name: Deploy frontend to Railway
         run: |
           cd frontend
-          railway up --service=${{ env.SVC_ID }
+          railway up --service=${{ env.SVC_ID }}
