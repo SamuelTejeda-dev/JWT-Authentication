@@ -52,9 +52,6 @@ jobs:
       - name: Deploy Frontend to Railway
         uses: railwayapp/action-deploy@v1
         with:
-          # L'ID del servizio Railway per il tuo frontend (lo trovi nella dashboard di Railway)
           service: ${{secrets.RAILWAY_FRONTEND_SVC_ID}}
-          # Il token API di Railway, memorizzato come GitHub Secret
           token: ${{ secrets.RAILWAY_TOKEN }}
-          # Specifica la sottocartella radice del servizio all'interno della monorepo
           root-path: frontend
