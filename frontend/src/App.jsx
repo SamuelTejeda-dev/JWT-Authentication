@@ -9,6 +9,7 @@ import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 import { setNavigate } from "./lib/navigation";
 
+
 export const Home = () => {
   return <div>Home</div>;
 };

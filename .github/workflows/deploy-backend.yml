@@ -8,34 +8,31 @@ on:
       - "backend/**"
 
 jobs:
-  deploy-frontend:
+  deploy:
     runs-on: ubuntu-latest
-
+    container: ghcr.io/railwayapp/cli:latest
+    env:
+      SVC_ID: ${{secrets.RAILWAY_BACKEND_SVC_ID}}
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
     steps:
-      - name: Checkout code
+      - name: Checkout github repo
         uses: actions/checkout@v3
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: "22"
+      - name: Install Node.js
+        run: |
+          apk update
+          apk add nodejs npm
 
       - name: Install Backend Dependencies
         run: npm install
         working-directory: backend
 
-      - name: Check for Backend Test Script
-        id: check_backend_test_script
-        working-directory: backend
+      - name: Run test
         run: echo "test"
 
       - name: Build Backend
         run: npm run build
-        working-directory: Backend
+        working-directory: backend
 
-      - name: Deploy Backend to Railway
-        uses: railwayapp/action-deploy@v1
-        with:
-          service: ${{secrets.RAILWAY_BACKEND_SVC_ID}}
-          token: ${{ secrets.RAILWAY_TOKEN }}
-          root-path: backend
+      - name: Deploy on railway
+        run: railway up --service=${{ env.SVC_ID }}
