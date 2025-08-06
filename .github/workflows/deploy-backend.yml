@@ -1,0 +1,46 @@
+name: Deploy Backend to Railway
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "backend/**"
+
+jobs:
+  deploy-frontend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "22"
+
+      - name: Install Backend Dependencies
+        run: npm install
+        working-directory: backend
+
+      - name: Check for Backend Test Script
+        id: check_backend_test_script
+        working-directory: backend
+        run: |
+          if jq -e '.scripts.test' package.json > /dev/null; then
+            echo "has_test_script=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_test_script=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build Backend
+        run: npm run build
+        working-directory: Backend
+
+      - name: Deploy Backend to Railway
+        uses: railwayapp/action-deploy@v1
+        with:
+          service: ${{secrets.RAILWAY_BACKEND_SVC_ID}}
+          token: ${{ secrets.RAILWAY_TOKEN }}
+          root-path: backend

@@ -1,0 +1,45 @@
+name: Deploy Frontend to Railway
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "frontend/**"
+jobs:
+  deploy-frontend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "22
+
+      - name: Install Frontend Dependencies
+        run: npm install
+        working-directory: frontend
+
+      - name: Check for Frontend Test Script
+        id: check_backend_test_script
+        working-directory: frontend
+        run: |
+          if jq -e '.scripts.test' package.json > /dev/null; then
+            echo "has_test_script=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_test_script=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build Frontend
+        run: npm run build
+        working-directory: frontend
+        
+      - name: Deploy Frontend to Railway
+        uses: railwayapp/action-deploy@v1
+        with:
+          service: ${{secrets.RAILWAY_FRONTEND_SVC_ID}}
+          token: ${{ secrets.RAILWAY_TOKEN }}
+          root-path: frontend
