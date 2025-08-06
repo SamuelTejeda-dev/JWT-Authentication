@@ -23,9 +23,9 @@ app.use(
 );
 app.use(cookieParser());
 
-app.get("/healt", (req, res, next) => {
+app.get("/", (req, res, next) => {
   //throw new Error("This is a test error");
-  res.status(200).send("Everything is ok");
+  res.status(200).send("Everything is ok!!");
 });
 
 //Auth routes
