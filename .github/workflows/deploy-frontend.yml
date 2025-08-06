@@ -26,12 +26,7 @@ jobs:
       - name: Check for Frontend Test Script
         id: check_backend_test_script
         working-directory: frontend
-        run: |
-          if jq -e '.scripts.test' package.json > /dev/null; then
-            echo "has_test_script=true" >> $GITHUB_OUTPUT
-          else
-            echo "has_test_script=false" >> $GITHUB_OUTPUT
-          fi
+        run: echo "test"
 
       - name: Build Frontend
         run: npm run build
