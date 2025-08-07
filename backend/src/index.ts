@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import connectToDatabase from "./config/db";
-import { APP_ORIGIN, APP_ORIGIN_DEV, NODE_ENV, PORT } from "./constants/env";
+import { APP_ORIGIN, NODE_ENV, PORT } from "./constants/env";
 import cookieParser from "cookie-parser";
 import errorHandler from "./middleware/errorHandler";
 import authRoutes from "./routes/auth.route";
