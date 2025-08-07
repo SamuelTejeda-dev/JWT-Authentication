@@ -21,7 +21,6 @@ services:
     volumes:
       - ./backend:/app
       - /app/node_modules
-      - ./backend/.env:/app/.env
     networks:
       - jwt-app
     ports:
