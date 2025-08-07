@@ -9,7 +9,7 @@ import authenticate from "./middleware/authenticate";
 import userRoutes from "./routes/user.route";
 import sessionRoutes from "./routes/session.route";
 
-//questo codice serve per settare il server express, le route e il middleware di errore
+//Questo codice serve per settare il server express, le route e il middleware di errore
 
 const app = express();
 
