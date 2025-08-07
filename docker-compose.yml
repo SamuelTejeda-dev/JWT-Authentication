@@ -1,0 +1,35 @@
+name: JWT Authentication
+
+services:
+  mongo:
+    image: mongo:latest
+    ports:
+      - 27017:27017
+    environment:
+      - MONGO_URI=mongodb://localhost:27017/authdb
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - jwt-app
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file: ./backend/.env
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    networks:
+      - jwt-app
+    ports:
+      - 4004:4004
+    depends_on:
+      - mongo
+
+volumes:
+  mongo_data:
+networks:
+  jwt-app:
+    driver: bridge
