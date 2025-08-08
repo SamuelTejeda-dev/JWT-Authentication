@@ -3,13 +3,12 @@ import { fifteenMinutesFromNow, thirtyDaysFormNow } from "./date";
 
 //questa funzione serve per settare i cookie di accesso e refresh token, in modo da non doverli settare in ogni singola route
 
-const secure = process.env.NODE_ENV !== "development";
 export const REFRESH_PATH = "/auth/refresh";
 
 const defaults: CookieOptions = {
   sameSite: "strict",
   httpOnly: true,
-  secure,
+  secure: true,
 };
 
 export const getAccessTokenCookieOption = (): CookieOptions => ({
